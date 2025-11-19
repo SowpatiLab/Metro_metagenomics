@@ -228,10 +228,10 @@ rgi_bowtie = read_delim(file = "data/rgi_bowtie.tsv", delim = "\t", col_names = 
 
 checkm2 = read_delim("data/checkm2_quality_report.csv", delim = "\t")
 
-genomad_plasmid = read_delim(file = paste0("/data/home/nitesh/Priyanka_STP_data/Data/metro_combined/metro_data_frames/genomad_plasmid_HQ_MAG.tsv"), delim = "\t", col_names = T)
-bat_drep = read_delim(file = paste0("/data/home/nitesh/Priyanka_STP_data/Data/metro_combined/metro_data_frames/bat_HQ_MAG.tsv"), delim = "\t", col_names = T)
-amr_drep = read_delim(file = paste0("/data/home/nitesh/Priyanka_STP_data/Data/metro_combined/metro_data_frames/amr_HQ_MAG.tsv"), delim = "\t", col_names = T)
-transposon_drep = read_delim(file = paste0("/data/home/nitesh/Priyanka_STP_data/Data/metro_combined/metro_data_frames/transposon_HQ_MAG.tsv"), delim = "\t", col_names = T)
+genomad_plasmid = read_delim(file = "data/genomad_plasmid_HQ_MAG.tsv", delim = "\t", col_names = T)
+bat_drep = read_delim(file = "data/bat_HQ_MAG.tsv", delim = "\t", col_names = T)
+amr_drep = read_delim(file = "data/amr_HQ_MAG.tsv", delim = "\t", col_names = T)
+transposon_drep = read_delim(file = "data/transposon_HQ_MAG.tsv", delim = "\t", col_names = T)
 
 coverage = read_delim(file = "data/sample_to_dereplicated_bin_coverage.tsv", delim = "\t", col_names = T)
 
