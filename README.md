@@ -19,7 +19,7 @@ The session information for the R enviroment used to generate the code is provid
 
 ## Data
 
-All the data needed for the code is deposited at the [Zenodo]([https://www.example.com](https://doi.org/10.5281/zenodo.15682429)). 
+All the data needed for the code is deposited at the [Zenodo](https://doi.org/10.5281/zenodo.15682429). 
 The data should be downloaded in the same directory as the main.R file which should also be set as the working directory.
 These data are in tabular format and contains processed data received from the specific tools.
 Most of the tools give sample specific results, which were then read and combined in a tabular format. Any processing, including normalization is done within the code.
