@@ -1,3 +1,4 @@
+```r
 #' R packages required to run this code. 
 #' Refer SessionInfo file to check package version information
 library(igraph)
@@ -1341,3 +1342,4 @@ colnames(network_stat_df_plot) = c("City", "Missing \nNodes", "Mean \nDegree","M
                                    "Number of \ncommunity", "Community \nModularity", "Node in \nbiggest \ncommunity")
 as.data.frame(network_stat_df_plot) %>% gt::gt()
 
+```
