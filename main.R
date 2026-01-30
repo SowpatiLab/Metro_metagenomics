@@ -1,3 +1,5 @@
+#' R packages required to run this code. 
+#' Refer SessionInfo file to check package version information
 library(igraph)
 library(tibble)
 library(tidyverse)
@@ -18,14 +20,10 @@ library(ecodist)
 library(UpSetR)
 library(ggplotify)
 
-##########################################################################################################################
-##########################################################################################################################
-# Defining function
-##########################################################################################################################
-##########################################################################################################################
-
-#Function takes dataframe with two columns "nomralized_count" (abundance count ) and "id". Also multiple cities are passed as "city_state"
-#Returns plot with top 10 "id" in each city based on "normalized_count"
+#' Function to generate top 10 id per city
+#' Input: A dataframe with id, normalized_count and city_state as column
+#' Output: 1. Dotplot of top 10 ids across cities
+#'          2. List of city specific stacked bar plot showing monthly abundance fraction
 bar_plot_top10 <- function(dataframe) 
 {
   top_all = dataframe %>%
@@ -96,8 +94,9 @@ bar_plot_top10 <- function(dataframe)
   return(list(table_plot, city_top))
 }
 
-#Function takes dataframe with two columns "nomralized_count" (abundance count ) multiple cities passed as "city_state"
-#Returns plot with alpha diversities
+#' Function to generate Alpha diversity (richness, Simpson, Shannon) plot
+#' Input: A dataframe with month_label, normalized_count and city_state as column
+#' Output: ggplot object of points faceted by diversity metric
 alpha_diversity_plot <- function(dataframe)
 {
   dataframe %>%
@@ -119,7 +118,9 @@ alpha_diversity_plot <- function(dataframe)
     facet_wrap(~variable, scales = "free_y", nrow = 3)
 }
 
-#Function to calculated bray curtis and PCoA plot with mean as centroid
+#' Function to generate PCoA plot based on Bray-Curtis distance
+#' Input: A dataframe with id, fileName (sample identifier), normalized_count and city_state as column
+#' Output: ggplot object PCoA plot using first two PcoA axes
 bray_curtis_plot <- function(dataframe)
 {
   #https://microbiome.github.io/course_2021_radboud/beta-diversity.html
@@ -161,7 +162,10 @@ bray_curtis_plot <- function(dataframe)
 }
 
 
-#Function to calculated aitchison distance and PCoA plot with mean as centroid
+#' Function to generate PCoA plot based on Aitchison distance
+#' Input: A dataframe with id, fileName (sample identifier), normalized_count and city_state as column
+#' Output: ggplot object PCoA plot using first two PcoA axes
+#' Pseudocount is added which is 0.65% of detection limit
 aitchison_plot = function(dataframe)
 {
   dataframe_wider = dataframe %>%
@@ -204,45 +208,57 @@ aitchison_plot = function(dataframe)
 
 
 
-##########################################################################################################################
-##########################################################################################################################
-# Reading data
-##########################################################################################################################
-##########################################################################################################################
 
-#Reading k2_nt database on which kraken2 was run
+#' Reading data from the saved dataframes
+#' These dataframes are combined table of output from various tools
+
+#' inspect file of k2_nt database downloaded on 2nd May 2023
 k2_nt = read_delim(file = "data/k2_nt_20230502.inspect.species.krona.phylotree.txt", delim = "\t")
 
-#Reading the metadata file and other pre compiled dataframes
+#' Meta file for the data describing sampling city and collection month
 meta = read_delim(file = "data/meta.tsv", delim = "\t", col_names = T) %>% 
   clean_names() %>%
   arrange(year, month) %>%
   mutate(month_label = factor(month_label, levels = unique(month_label))) %>%
   mutate(city_state = factor(city_state, levels = c("Kolkata", "Delhi", "Chennai", "Mumbai")))
 
+#' Bracken estimated read at the phyla level
+#' https://github.com/jenniferlu717/Bracken
+#' https://benlangmead.github.io/aws-indexes/k2
 bracken_phylum = read_delim(file = "data/bracken_phylum.tsv", delim = "\t", col_names = T)
+#' Bracken estimated read at the genera level
 bracken_genus = read_delim(file = "data/bracken_genus.tsv", delim = "\t", col_names = T)
+#' Bracken estimated read at the species level
 bracken_species = read_delim(file = "data/bracken_species.tsv", delim = "\t", col_names = T)
+#' File with total read count (kraken) and domain level read count (bracken)
+#' https://ccb.jhu.edu/software/kraken/
 bacterial_read_df = read_delim(file = "data/bacterial_read_df.tsv", delim = "\t", col_names = T)
+#' RGI output file
 rgi_bowtie = read_delim(file = "data/rgi_bowtie.tsv", delim = "\t", col_names = T)
 
+#' CheckM2 quality report for all the MAGs
 checkm2 = read_delim("data/checkm2_quality_report.csv", delim = "\t")
 
-genomad_plasmid = read_delim(file = "data/genomad_plasmid_HQ_MAG.tsv", delim = "\t", col_names = T)
-bat_drep = read_delim(file = "data/bat_HQ_MAG.tsv", delim = "\t", col_names = T)
-amr_drep = read_delim(file = "data/amr_HQ_MAG.tsv", delim = "\t", col_names = T)
-transposon_drep = read_delim(file = "data/transposon_HQ_MAG.tsv", delim = "\t", col_names = T)
+#' geNomad output containing plasmid score for high quality MAGs
+#' https://github.com/apcamargo/genomad
+genomad_plasmid = read_delim(file = paste0("data/genomad_plasmid_HQ_MAG.tsv"), delim = "\t", col_names = T)
+#' BAT output for high quality MAGs classification
+#' https://github.com/MGXlab/CAT_pack
+bat_drep = read_delim(file = paste0("data/bat_HQ_MAG.tsv"), delim = "\t", col_names = T)
+#' BacAnt output for hiqh quality MAGs identifying AMR signatures
+#' https://github.com/xthua/bacant
+amr_drep = read_delim(file = paste0("data/amr_HQ_MAG.tsv"), delim = "\t", col_names = T)
+#' BacAnt output for hiqh quality MAGs identifying transposon signatures
+transposon_drep = read_delim(file = paste0("data/transposon_HQ_MAG.tsv"), delim = "\t", col_names = T)
 
+#' coverage of HQ MAG for each samples
 coverage = read_delim(file = "data/sample_to_dereplicated_bin_coverage.tsv", delim = "\t", col_names = T)
 
 
-##########################################################################################################################
-##########################################################################################################################
 # Read level analysis
-##########################################################################################################################
-##########################################################################################################################
 
-#Merging location data for the read level analysis
+# Merging multiple location data from the same city for the read level analysis
+
 meta_select = meta %>% 
   dplyr::select(city_state, month, year, month_label) %>%
   distinct() %>%
@@ -297,9 +313,7 @@ bacterial_read_df %>%
   guides(fill = guide_legend(override.aes = list(alpha = 1, shape = 21, size = 7)))
 
 
-##########################################################################################################################
-#     Bacterial phylums
-##########################################################################################################################
+# Bacterial phylums
 
 bracken_phylum_select_bacterial = bracken_phylum_select %>%
   inner_join(k2_nt %>% filter(kingdom == "Bacteria") %>% dplyr::select(phylum) %>% distinct(), by = c("name" = "phylum")) %>%
@@ -317,9 +331,7 @@ plot_grid(plotlist = top_bacterial_phylum[[2]]) %>%
   plot_grid(top_bacterial_phylum[[1]],  rel_widths = c(5, 1.5))
 
 
-##########################################################################################################################
 # Bacterial Genus
-##########################################################################################################################
 
 bracken_genus_select_bacterial = bracken_genus_select %>%
   inner_join(k2_nt %>% filter(kingdom == "Bacteria") %>% dplyr::select(genus) %>% distinct(), by = c("name" = "genus")) %>%
@@ -343,9 +355,7 @@ plot_grid(plotlist = top_bacterial_genus[[2]]) %>%
   plot_grid(top_bacterial_genus[[1]],  rel_widths = c(5, 1.5))
 
 
-##########################################################################################################################
 # Bacterial species
-##########################################################################################################################
 
 bracken_species_select_bacterial = bracken_species_select %>%
   inner_join(k2_nt %>% filter(kingdom == "Bacteria") %>% dplyr::select(species) %>% distinct(), by = c("name" = "species")) %>%
@@ -369,9 +379,7 @@ plot_grid(plotlist = top_bacterial_species[[2]]) %>%
   plot_grid(top_bacterial_species[[1]],  rel_widths = c(5, 2))
 
 
-##########################################################################################################################
-#     Bacterial species differential
-##########################################################################################################################
+# Bacterial species differential
 
 bracken_species_bacterial_diff = bracken_species %>%
   inner_join(k2_nt %>% filter(kingdom == "Bacteria") %>% dplyr::select(species) %>% distinct(), by = c("name" = "species")) %>%
@@ -459,9 +467,7 @@ differential_df %>%
             legend.title = element_text(size = 35),
             legend.text = element_text(size = 35))}
 
-##########################################################################################################################
-#     Antimicrobial resistant genes (ARG)
-##########################################################################################################################
+# Antimicrobial resistant genes (ARG)
 
 # trimmed rgi, keeping only those aro for which we have Average MAPQ >10 and completely mapped reads more than 10
 rgi_bowtie_trimmed = rgi_bowtie %>%
@@ -491,11 +497,13 @@ plot_grid(plotlist = top_arg[[2]]) %>%
                   left = text_grob("Fraction of total reads", color = "black", rot = 90, size = 30, x = 1.5)) %>%
   plot_grid(top_arg[[1]],  rel_widths = c(5, 2))
 
-#https://www.nature.com/articles/s41467-022-29283-8
+# Defining betalactam and MLS drug classes
+# https://www.nature.com/articles/s41467-022-29283-8
 betalactam = c("penam", "cephalosporin", "carbapenem", "cephamycin", "penem", "monobactam")
 MLS = c("macrolide", "lincosamide", "streptogramin", "streptogramin A", "streptogramin B")
 
 
+# Defining 'Multi-drug' drug classes
 rgi_bowtie_trimmed_drug_class = rgi_bowtie_trimmed %>%
   mutate(drug_class = str_replace_all(drug_class, " antibiotic", "")) %>%
   mutate(drug_class_group = drug_class,
@@ -555,9 +563,7 @@ multidrug_upset_list = rgi_bowtie_trimmed_drug_class %>% filter(drug_class_multi
   )
 plot_grid(plotlist = (multidrug_upset_list), labels = levels(rgi_bowtie_trimmed_drug_class$city_state))
 
-##########################################################################################################################
 # ARG Differential analysis
-##########################################################################################################################
 
 rgi_diff = rgi_bowtie %>% 
   filter(`Reference Allele(s) Identity to CARD Reference Protein (%)` >= 90) %>%
@@ -649,22 +655,16 @@ differential_rgi_df %>%
       guides(size = guide_legend(title.position = "top", title.hjust=0.5))}
 
 
-##########################################################################################################################
-##########################################################################################################################
-#     MAG level analysis
-##########################################################################################################################
-##########################################################################################################################
+# MAG level analysis
 
-#Reading checkm2 quality score of MAGs and retaining High quality MAGs
+# Reading checkm2 quality score of MAGs and retaining High quality MAGs
 checkm2 = checkm2 %>%
   separate(Name, into = c("sample_code", "extra"), sep = "_", remove = F) %>%
   left_join(meta) %>% 
   #filter(Completeness > 50, Contamination < 10) # Medium Quality
   filter(Completeness > 90, Contamination < 5) # High Quality
 
-##########################################################################################################################
-#   MAGs taxonomic classification
-##########################################################################################################################
+# MAGs taxonomic classification
 bat_drep_resolved = bat_drep %>%
   mutate(phylum = case_when(phylum ==  "no support" ~ "Unresolved MAG",
                             TRUE ~ "Resolved MAG"),
@@ -706,19 +706,19 @@ bat_drep_resolved %>%
   xlab(paste0("Percentage of MAGs resolved by BAT")) +
   ggtitle("")
 
-#Comparing stats of MAG that were resolved with unresolved MAGs at the species level
+# Comparing stats of MAG that were resolved with unresolved MAGs at the species level
 bat_drep %>%
   left_join(checkm2) %>%
   mutate(Log_contig_N50 = log(Contig_N50)) %>%
   mutate(Genome_Size = Genome_Size/1000000) %>%
   dplyr::select(species, Completeness, Contamination, Log_contig_N50, Genome_Size, Total_Contigs) %>%
-  rename(c(`log(Contigs N50)` = Log_contig_N50), `Genome Size (Mb)` = Genome_Size, `Total contigs` = Total_Contigs) %>%
+  dplyr::rename(c(`log(Contigs N50)` = Log_contig_N50), `Genome Size (Mb)` = Genome_Size, `Total contigs` = Total_Contigs) %>%
   mutate(species = case_when(species ==  "no support" ~ "Novel",
                              TRUE ~ "Known")) %>%
   melt(id.vars = c("species")) %>%
   tidyplot(x = species, y = value, color = species, alpha = 1) %>%
   add_boxplot(dodge_width = 0.2, box_width = 0.9, outlier.size = 0.2, outlier.alpha = 0.2, alpha = 0.5) %>%
-  add_test_pvalue(ref.group = 1, p.adjust.method = "BH", hide_info = T, label.size = 5,bracket.nudge.y = .2) %>%
+  add_test_pvalue(ref.group = 1, p.adjust.method = "BH", hide_info = F, label.size = 5,bracket.nudge.y = .2) %>%
   theme_tidyplot(fontsize = 15) %>%
   remove_x_axis_title() %>%
   remove_x_axis_labels() %>%
@@ -727,7 +727,22 @@ bat_drep %>%
   adjust_legend_title("MAGs at the\nspecies taxa") %>%
   split_plot(by = variable)
 
-#Sankey plot for bin classification
+'
+bat_drep %>%
+left_join(checkm2) %>%
+mutate(Log_contig_N50 = log(Contig_N50)) %>%
+mutate(Genome_Size = Genome_Size/1000000) %>%
+dplyr::select(species, Completeness, Contamination, Log_contig_N50, Genome_Size, Total_Contigs) %>%
+dplyr::rename(c(`log(Contigs N50)` = Log_contig_N50), `Genome Size (Mb)` = Genome_Size, `Total contigs` = Total_Contigs) %>%
+mutate(species = case_when(species ==  "no support" ~ "Novel",
+TRUE ~ "Known")) %>%
+melt(id.vars = c("species")) %>%
+group_by(variable) %>%
+summarise(p.value = formatC(t.test(value ~ species)$p.value, format = "e", digits = 2)) %>%
+ungroup()
+'
+  
+# Sankey plot for bin classification
 bat_drep_sankey = bat_drep %>% left_join(checkm2)
 
 bat_drep_df = bat_drep_sankey %>%
@@ -768,9 +783,7 @@ df %>%
         plot.title = NULL) +
   facet_wrap(~city)
 
-##########################################################################################################################
-#   Mobile genetic elements analysis (Plasmid + Transoposon)
-##########################################################################################################################
+# Mobile genetic elements analysis (Plasmid + Transoposon)
 genomad_plasmid = genomad_plasmid %>% filter(plasmid_score >= 0.9) %>% 
   left_join(checkm2) %>% 
   mutate(bin_contig = paste0(Name, "_", seq_name))  
@@ -794,13 +807,13 @@ checkm2 %>%
   adjust_legend_title("") %>%
   adjust_size(350,250)
 
-#Making df with unique contigs for each drug class, city and bin
+# Making df with unique contigs for each drug class, city and bin
 amr_drep_checkm2_topPR_df = amr_drep_checkm2 %>% 
   mutate(X14 = replace_na(X14, "UNKNOWN")) %>%
   dplyr::select(X14, name_contig, city_state, Name) %>% 
   distinct()
 
-#For each city top 10 drug classes with most number of contigs
+# For each city top 10 drug classes with most number of contigs
 top_pr = amr_drep_checkm2_topPR_df %>% 
   filter(!(is.na(X14))) %>%
   group_by(city_state, X14) %>%
@@ -814,13 +827,13 @@ top_pr_order = top_pr %>%
   mutate(X14 = forcats::fct_relevel(X14, "UNKNOWN", after = Inf))
 top_pr_color = setNames(paletteer::paletteer_d("ggsci::default_igv")[1:length(levels(as.factor(top_pr_order$X14)))],levels(as.factor(top_pr_order$X14)))
 
-#Total AMR carrying contigs per city
+# Total AMR carrying contigs per city
 city_contig_count = amr_drep_checkm2 %>% dplyr::select(name_contig, city_state, Name) %>%
   distinct() %>%
   group_by(city_state) %>%
   summarise(city_contig_count = n(), .groups = "drop")
 
-#Top 10 Drug class for each city
+# Top 10 Drug class for each city
 amr_drep_checkm2_topPR_df %>% 
   filter(X14 %in% top_pr$X14) %>%
   group_by(X14, city_state) %>%
@@ -844,20 +857,20 @@ amr_drep_checkm2_topPR_df %>%
         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 
 
-#Remove duplicate AMR on same contigs
+# Remove duplicate AMR on same contigs
 amr_drep_checkm2_topamr_df = amr_drep_checkm2 %>%
   mutate(X14 = replace_na(X14, "UNKNOWN")) %>%
   dplyr::select(X6, name_contig, city_state, Name, X14) %>% 
   distinct()
 
-#For each city top 10 AMR with most number of contigs
+# For each city top 10 AMR with most number of contigs
 top_amr = amr_drep_checkm2_topamr_df %>% 
   group_by(city_state, X6, X14) %>%
   summarize(contig_count = n(), .groups = "drop") %>%
   group_by(city_state) %>%
   top_n(10,wt = contig_count) %>%
   ungroup()
-#AMR ordering first with Drug class with most contigs, followed by AMR with most contigs
+# AMR ordering first with Drug class with most contigs, followed by AMR with most contigs
 top_amr_order = top_amr %>%
   group_by(X6) %>% mutate(contig_count_per_amr = sum(contig_count)) %>% ungroup() %>%
   group_by(X14) %>% mutate(contig_count_per_dc = n()) %>% ungroup() %>%
@@ -867,7 +880,7 @@ top_amr_order = top_amr %>%
          X6 = factor(X6, levels = unique(X6)))
 top_amr_color = setNames(paletteer::paletteer_d("ggsci::default_igv")[1:length(levels(top_amr_order$X14))],levels(top_amr_order$X14))
 
-#Top 10 AMR per city colored by drug class
+# Top 10 AMR per city colored by drug class
 amr_drep_checkm2_topamr_df %>% 
   filter(X6 %in% top_amr$X6) %>%
   group_by(X6, city_state) %>%
@@ -890,7 +903,7 @@ amr_drep_checkm2_topamr_df %>%
         legend.position = "right",
         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 
-#Unique Contig count per drug class per city
+# Unique Contig count per drug class per city
 drug_class_contig_count = amr_drep_checkm2 %>% 
   mutate(X14 = replace_na(X14, "UNKNOWN")) %>%
   dplyr::select(X14, name_contig, city_state, Name) %>%
@@ -898,7 +911,7 @@ drug_class_contig_count = amr_drep_checkm2 %>%
   group_by(X14, city_state) %>% 
   summarise(dc_contig_count = n(),.groups = "drop")
 
-#Unique Contig count per drug class "CONTAINING MGE" per city
+# Unique Contig count per drug class "CONTAINING MGE" per city
 drug_class_mge_contig_count = amr_drep_checkm2 %>% 
   dplyr::select(X14, name_contig, city_state, Name) %>%
   distinct() %>%
@@ -909,17 +922,17 @@ drug_class_mge_contig_count = amr_drep_checkm2 %>%
   group_by(X14, city_state) %>%
   summarise(mge_dc_contig_count = n(), .groups = "drop")
 
-#Unique AMR count per drug class "CONTAINING MGE" per city
+# Unique AMR count per drug class "CONTAINING MGE" per city
 drug_class_amr_count = amr_drep_checkm2 %>% 
   dplyr::select(X6, X14, city_state, Name, name_contig) %>%
   distinct() %>%
   group_by(X14, city_state) %>%
   summarise(dc_amr_count = n(), .groups = "drop")
 
-#Plot with top 10 drug class for each city
-#X-axis has proportion of `contigs with specific drug class` for each city
-#Y-axis has proportion of `ARG carrying contigs` with MGE for each city
-#Size of dot is number of unique ARG for the drug class
+# Plot with top 10 drug class for each city
+# X-axis has proportion of `contigs with specific drug class` for each city
+# Y-axis has proportion of `ARG carrying contigs` with MGE for each city
+# Size of dot is number of unique ARG for the drug class
 drug_class_contig_count %>% left_join(drug_class_mge_contig_count) %>% left_join(drug_class_amr_count) %>% left_join(city_contig_count) %>%
   mutate_if(is.numeric, ~replace_na(., 0)) %>%
   group_by(X14) %>% 
@@ -947,7 +960,7 @@ contig_amr_genomad_transposon = amr_drep_checkm2 %>%
                                           (name_contig %in% genomad_plasmid$bin_contig) ~ "Contigs with MGE",
                                         TRUE ~ "Contigs without MGE"))
 
-#Plot with multiple arg for same drug class on a contig
+# Plot with multiple arg for same drug class on a contig
 contig_amr_genomad_transposon %>% 
   group_by(X14, name_contig, city_state, plasmid_transposon) %>% 
   summarise(pr_per_count = n(), .groups = "drop") %>%
@@ -966,9 +979,8 @@ contig_amr_genomad_transposon %>%
   scale_fill_manual(values = top_pr_color)
 
 
-##########################################################################################################################
-#   Network analysis for dereplicated high quality MAGs
-##########################################################################################################################
+# Network analysis for dereplicated high quality MAGs
+
 # Calculating bin level coverage for each sample.
 coverage_bin = coverage %>%
   left_join(meta, by = c("sampleName" = "sample_code")) %>%
@@ -1186,7 +1198,7 @@ groups_df %>%
         legend.position = "none")
 
 
-#Correlation matrix between abundance vector of community
+# Correlation matrix between abundance vector of community
 community_temporal_df_plot_cor = community_temporal_df_plot %>%
   dplyr::select(city_community_new, month, value) %>%
   pivot_wider(id_cols = city_community_new, values_from = value, names_from = month, values_fill = 0) %>%
@@ -1243,7 +1255,7 @@ mge_contigs = contig_amr_genomad_transposon %>%
 
 groups_df %>%
   dplyr::select(city, values, city_community_new) %>% 
-  rename(Name = values) %>% 
+  dplyr::rename(Name = values) %>% 
   left_join(total_contigs) %>%
   left_join(amr_contigs) %>%
   left_join(mge_contigs) %>%
