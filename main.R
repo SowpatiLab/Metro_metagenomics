@@ -1,6 +1,5 @@
-```r
-#' R packages required to run this code. 
-#' Refer SessionInfo file to check package version information
+# R packages required to run this code. 
+# Refer SessionInfo file to check package version information
 library(igraph)
 library(tibble)
 library(tidyverse)
@@ -21,10 +20,10 @@ library(ecodist)
 library(UpSetR)
 library(ggplotify)
 
-#' Function to generate top 10 id per city
-#' Input: A dataframe with id, normalized_count and city_state as column
-#' Output: 1. Dotplot of top 10 ids across cities
-#'          2. List of city specific stacked bar plot showing monthly abundance fraction
+# Function to generate top 10 id per city
+# Input: A dataframe with id, normalized_count and city_state as column
+# Output: 1. Dotplot of top 10 ids across cities
+#          2. List of city specific stacked bar plot showing monthly abundance fraction
 bar_plot_top10 <- function(dataframe) 
 {
   top_all = dataframe %>%
@@ -95,9 +94,9 @@ bar_plot_top10 <- function(dataframe)
   return(list(table_plot, city_top))
 }
 
-#' Function to generate Alpha diversity (richness, Simpson, Shannon) plot
-#' Input: A dataframe with month_label, normalized_count and city_state as column
-#' Output: ggplot object of points faceted by diversity metric
+# Function to generate Alpha diversity (richness, Simpson, Shannon) plot
+# Input: A dataframe with month_label, normalized_count and city_state as column
+# Output: ggplot object of points faceted by diversity metric
 alpha_diversity_plot <- function(dataframe)
 {
   dataframe %>%
@@ -119,9 +118,9 @@ alpha_diversity_plot <- function(dataframe)
     facet_wrap(~variable, scales = "free_y", nrow = 3)
 }
 
-#' Function to generate PCoA plot based on Bray-Curtis distance
-#' Input: A dataframe with id, fileName (sample identifier), normalized_count and city_state as column
-#' Output: ggplot object PCoA plot using first two PcoA axes
+# Function to generate PCoA plot based on Bray-Curtis distance
+# Input: A dataframe with id, fileName (sample identifier), normalized_count and city_state as column
+# Output: ggplot object PCoA plot using first two PcoA axes
 bray_curtis_plot <- function(dataframe)
 {
   #https://microbiome.github.io/course_2021_radboud/beta-diversity.html
@@ -163,10 +162,10 @@ bray_curtis_plot <- function(dataframe)
 }
 
 
-#' Function to generate PCoA plot based on Aitchison distance
-#' Input: A dataframe with id, fileName (sample identifier), normalized_count and city_state as column
-#' Output: ggplot object PCoA plot using first two PcoA axes
-#' Pseudocount is added which is 0.65% of detection limit
+# Function to generate PCoA plot based on Aitchison distance
+# Input: A dataframe with id, fileName (sample identifier), normalized_count and city_state as column
+# Output: ggplot object PCoA plot using first two PcoA axes
+# Pseudocount is added which is 0.65% of detection limit
 aitchison_plot = function(dataframe)
 {
   dataframe_wider = dataframe %>%
@@ -210,49 +209,49 @@ aitchison_plot = function(dataframe)
 
 
 
-#' Reading data from the saved dataframes
-#' These dataframes are combined table of output from various tools
+# Reading data from the saved dataframes
+# These dataframes are combined table of output from various tools
 
-#' inspect file of k2_nt database downloaded on 2nd May 2023
+# inspect file of k2_nt database downloaded on 2nd May 2023
 k2_nt = read_delim(file = "data/k2_nt_20230502.inspect.species.krona.phylotree.txt", delim = "\t")
 
-#' Meta file for the data describing sampling city and collection month
+# Meta file for the data describing sampling city and collection month
 meta = read_delim(file = "data/meta.tsv", delim = "\t", col_names = T) %>% 
   clean_names() %>%
   arrange(year, month) %>%
   mutate(month_label = factor(month_label, levels = unique(month_label))) %>%
   mutate(city_state = factor(city_state, levels = c("Kolkata", "Delhi", "Chennai", "Mumbai")))
 
-#' Bracken estimated read at the phyla level
-#' https://github.com/jenniferlu717/Bracken
-#' https://benlangmead.github.io/aws-indexes/k2
+# Bracken estimated read at the phyla level
+# https://github.com/jenniferlu717/Bracken
+# https://benlangmead.github.io/aws-indexes/k2
 bracken_phylum = read_delim(file = "data/bracken_phylum.tsv", delim = "\t", col_names = T)
-#' Bracken estimated read at the genera level
+# Bracken estimated read at the genera level
 bracken_genus = read_delim(file = "data/bracken_genus.tsv", delim = "\t", col_names = T)
-#' Bracken estimated read at the species level
+# Bracken estimated read at the species level
 bracken_species = read_delim(file = "data/bracken_species.tsv", delim = "\t", col_names = T)
-#' File with total read count (kraken) and domain level read count (bracken)
-#' https://ccb.jhu.edu/software/kraken/
+# File with total read count (kraken) and domain level read count (bracken)
+# https://ccb.jhu.edu/software/kraken/
 bacterial_read_df = read_delim(file = "data/bacterial_read_df.tsv", delim = "\t", col_names = T)
-#' RGI output file
+# RGI output file
 rgi_bowtie = read_delim(file = "data/rgi_bowtie.tsv", delim = "\t", col_names = T)
 
-#' CheckM2 quality report for all the MAGs
+# CheckM2 quality report for all the MAGs
 checkm2 = read_delim("data/checkm2_quality_report.csv", delim = "\t")
 
-#' geNomad output containing plasmid score for high quality MAGs
-#' https://github.com/apcamargo/genomad
+# geNomad output containing plasmid score for high quality MAGs
+# https://github.com/apcamargo/genomad
 genomad_plasmid = read_delim(file = paste0("data/genomad_plasmid_HQ_MAG.tsv"), delim = "\t", col_names = T)
-#' BAT output for high quality MAGs classification
-#' https://github.com/MGXlab/CAT_pack
+# BAT output for high quality MAGs classification
+# https://github.com/MGXlab/CAT_pack
 bat_drep = read_delim(file = paste0("data/bat_HQ_MAG.tsv"), delim = "\t", col_names = T)
-#' BacAnt output for hiqh quality MAGs identifying AMR signatures
-#' https://github.com/xthua/bacant
+# BacAnt output for hiqh quality MAGs identifying AMR signatures
+# https://github.com/xthua/bacant
 amr_drep = read_delim(file = paste0("data/amr_HQ_MAG.tsv"), delim = "\t", col_names = T)
-#' BacAnt output for hiqh quality MAGs identifying transposon signatures
+# BacAnt output for hiqh quality MAGs identifying transposon signatures
 transposon_drep = read_delim(file = paste0("data/transposon_HQ_MAG.tsv"), delim = "\t", col_names = T)
 
-#' coverage of HQ MAG for each samples
+# coverage of HQ MAG for each samples
 coverage = read_delim(file = "data/sample_to_dereplicated_bin_coverage.tsv", delim = "\t", col_names = T)
 
 
@@ -1342,4 +1341,3 @@ colnames(network_stat_df_plot) = c("City", "Missing \nNodes", "Mean \nDegree","M
                                    "Number of \ncommunity", "Community \nModularity", "Node in \nbiggest \ncommunity")
 as.data.frame(network_stat_df_plot) %>% gt::gt()
 
-```
