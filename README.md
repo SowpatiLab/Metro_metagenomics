@@ -1,4 +1,4 @@
-# Metagenomic Profiling of Antimicrobial Resistance in Wastewater from Metropolitan Cities of India - a two-year longitudinal study
+# Metagenomic Profiling of Antimicrobial Resistance in Wastewater from Metropolitan Cities of India
 ---
 ## Contents
 ---
@@ -13,13 +13,13 @@ The samples were sequenced on Illumina NovaSeq 6000 platform. Relative taxonomic
 
 ## Code
 
-This R script "main.R" can be used to generate images for the project "Metagenomic Profiling of Antimicrobial Resistance in Wastewater from Metropolitan Cities of India - a two-year longitudinal study".
+This R script "main.R" can be used to generate images for the project "Metagenomic Profiling of Antimicrobial Resistance in Wastewater from Metropolitan Cities of India".
 All the packages needed to run the code is listed at the top of the R script and should be installed before running the code.
 The session information for the R enviroment used to generate the code is provided in "sessionInfo" file and should be used to get the package information.
 
 ## Data
 
-All the data needed for the code is deposited at the [Zenodo](https://doi.org/10.5281/zenodo.15682429). 
+All the data needed for the code is deposited at the [Zenodo](https://doi.org/10.5281/zenodo.17590646). 
 The data should be downloaded in the same directory as the main.R file which should also be set as the working directory.
 These data are in tabular format and contains processed data received from the specific tools.
 Most of the tools give sample specific results, which were then read and combined in a tabular format. Any processing, including normalization is done within the code.
